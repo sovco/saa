@@ -20,4 +20,5 @@
 !test/*/*/*.cpp
 !test/*/*/*.c
 test/nob.h
+!build-project.c
 !.clang-format
