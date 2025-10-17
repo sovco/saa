@@ -15,7 +15,7 @@ struct saa_arena_page_t
 {
     char *data;
     saa_arena_page *next;
-    size_t size;
+    size_t capacity;
 };
 
 struct saa_arena_t
@@ -49,7 +49,7 @@ extern "C" {
 static inline saa_arena_page *__saa_allocate_arena_page(const size_t page_size)
 {
     saa_arena_page *ret = malloc(sizeof(*ret));
-    *ret = (saa_arena_page){ .data = (char *)malloc(sizeof(char) * page_size), .size = 0, .next = NULL };
+    *ret = (saa_arena_page){ .data = (char *)malloc(sizeof(char) * page_size), .capacity = 0, .next = NULL };
     return ret;
 }
 
@@ -63,12 +63,12 @@ static inline void *saa_arena_push(saa_arena *arena, size_t lenght)
     void *ret_ptr = NULL;
     saa_arena_page *latest_page = NULL;
     for (latest_page = arena->pages; latest_page->next != NULL; latest_page = latest_page->next) {}
-    if (latest_page->size + lenght > arena->page_size) {
+    if (latest_page->capacity + lenght > arena->page_size) {
         latest_page->next = __saa_allocate_arena_page(arena->page_size);
         latest_page = latest_page->next;
     }
-    ret_ptr = (void *)(latest_page->data + latest_page->size);
-    latest_page->size += lenght;
+    ret_ptr = (void *)(latest_page->data + latest_page->capacity);
+    latest_page->capacity += lenght;
     return ret_ptr;
 }
 
