@@ -99,6 +99,18 @@ STF_TEST_CASE(saa, arena_pushing_150_bytes_on_100_byte_page_does_create_another_
     saa_arena_destroy(&arena);
 }
 
+STF_TEST_CASE(saa, arena_pushing_with_macro)
+{
+    static const size_t arena_page_size = 100;
+    static const float pushed_float = 77.7;
+    saa_arena arena = saa_arena_create(arena_page_size);
+    float *pushed = saa_arena_push_value(&arena, pushed_float); 
+    STF_EXPECT(*pushed == pushed_float, .failure_msg = "values did not match");
+    char *pushed_string = saa_arena_push_value(&arena, "this was pushed"); 
+    STF_EXPECT(strcmp(pushed_string, "this was pushed") == 0, .failure_msg = "values did not match");
+    saa_arena_destroy(&arena);
+}
+
 int main(void)
 {
     return STF_RUN_TESTS();

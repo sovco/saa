@@ -7,7 +7,6 @@ extern "C" {
 
 #include <stdbool.h>
 
-
 typedef struct saa_arena_page_t saa_arena_page;
 typedef struct saa_arena_t saa_arena;
 
@@ -33,6 +32,13 @@ static inline bool *saa_arena_push_value_bool(saa_arena *arena, int value);
 static inline char *saa_arena_push_value_string(saa_arena *arena, const char *value);
 static inline void *saa_arena_push_arbitrary(saa_arena *arena, void *value, size_t lenght);
 static inline void saa_arena_destroy(saa_arena *arena);
+
+#define saa_arena_push_value(arena, type) _Generic((type),     \
+                    float: saa_arena_push_value_float,         \
+                    double: saa_arena_push_value_double,       \
+                    int: saa_arena_push_value_int,             \
+                    char *: saa_arena_push_value_string        \
+              )(arena, type)
 
 #ifdef __cplusplus
 }// extern "C"
