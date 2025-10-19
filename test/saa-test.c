@@ -37,6 +37,16 @@ STF_TEST_CASE(saa, create_arena_push_some_bytes_write_destroy)
     saa_arena_destroy(&arena);
 }
 
+STF_TEST_CASE(saa, arena_pushing_more_than_page_size)
+{
+    static const size_t arena_page_size = 100;
+    static const size_t push_size = arena_page_size + 10;
+    saa_arena arena = saa_arena_create(arena_page_size);
+    char *pushed = saa_arena_push(&arena, push_size);
+    STF_EXPECT(pushed == NULL, .failure_msg = "pushing was not supposed to return a valid pointer on a push with size greater than page size");
+    saa_arena_destroy(&arena);
+}
+
 STF_TEST_CASE(saa, arena_pushing_100_bytes_on_100_byte_page_does_not_create_another_page)
 {
     static const size_t arena_page_size = 100;
@@ -108,6 +118,26 @@ STF_TEST_CASE(saa, arena_pushing_with_macro)
     STF_EXPECT(*pushed == pushed_float, .failure_msg = "values did not match");
     char *pushed_string = saa_arena_push_value(&arena, "this was pushed"); 
     STF_EXPECT(strcmp(pushed_string, "this was pushed") == 0, .failure_msg = "values did not match");
+    saa_arena_destroy(&arena);
+}
+
+STF_TEST_CASE(saa, arena_pushing_many_strings)
+{
+    static const size_t arena_page_size = 100;
+    const char *some_text = "something";
+    saa_arena arena = saa_arena_create(arena_page_size);
+    char *pushed_string = saa_arena_push_value_strings(&arena, "this", " is many ", "strings ", some_text); 
+    STF_EXPECT(strcmp(pushed_string, "this is many strings something") == 0, .failure_msg = "values did not match");
+    saa_arena_destroy(&arena);
+}
+
+STF_TEST_CASE(saa, arena_pushing_too_many_string)
+{
+    static const size_t arena_page_size = 10;
+    const char *some_text = "something";
+    saa_arena arena = saa_arena_create(arena_page_size);
+    char *pushed_string = saa_arena_push_value_strings(&arena, "this", " is many ", "strings ", some_text); 
+    STF_EXPECT(pushed_string == NULL, .failure_msg = "on pushing string with summary lenght > page size was supposed to return an invalid pointer");
     saa_arena_destroy(&arena);
 }
 
