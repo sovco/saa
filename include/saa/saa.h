@@ -152,9 +152,7 @@ static inline char *__saa_arena_push_value_strings(const saa_arena *restrict are
         return NULL;
     }
     tmp = ret;
-    memcpy(ret, value[0], strlen(value[0]));
-    tmp += strlen(value[0]);
-    for (index = 1; value[index + 1] != NULL; index++) {
+    for (index = 0; value[index + 1] != NULL; index++) {
         memcpy(tmp, value[index], strlen(value[index]));
         tmp += strlen(value[index]);
     }

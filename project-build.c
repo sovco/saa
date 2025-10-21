@@ -17,7 +17,7 @@ int main(int argc, char **argv)
         nob_cmd_append(&cmd, "curl", "-Lo", "build/deps/stf/stf.h", "https://raw.githubusercontent.com/sovco/stf/refs/heads/master/include/stf/stf.h");
         if (!nob_cmd_run(&cmd)) return 1;
     }
-    nob_cmd_append(&cmd, "cc", "-Wall", "-Wextra", "-std=c11", "-ggdb", "-o", "build/saa-test", "-lpthread", "-lrt", "-Iinclude", "-Ibuild/deps", "test/saa-test.c");
+    nob_cmd_append(&cmd, "cc", "-Wall", "-Wextra", "-std=c11", "-o3", "-o", "build/saa-test", "-lpthread", "-lrt", "-Iinclude", "-Ibuild/deps", "test/saa-test.c");
     if (!nob_cmd_run(&cmd)) return 1;
     return 0;
 }
