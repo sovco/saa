@@ -24,27 +24,26 @@ struct saa_arena_t
 };
 
 static inline saa_arena saa_arena_create(const size_t size);
-static inline void *saa_arena_push(saa_arena *arena, size_t lenght);
-static inline bool saa_arena_last_page_able_fit_lenght(saa_arena *arena, size_t lenght);
-static inline double *saa_arena_push_value_double(saa_arena *arena, double value);
-static inline float *saa_arena_push_value_float(saa_arena *arena, float value);
-static inline int *saa_arena_push_value_int(saa_arena *arena, int value);
-static inline bool *saa_arena_push_value_bool(saa_arena *arena, int value);
-static inline char *saa_arena_push_value_string(saa_arena *arena, const char *value);
-static inline void *saa_arena_push_arbitrary(saa_arena *arena, void *value, size_t lenght);
-static inline void saa_arena_destroy(saa_arena *arena);
+static inline void *saa_arena_push(const saa_arena *restrict arena, size_t lenght);
+static inline bool saa_arena_last_page_able_fit_lenght(const saa_arena *restrict arena, size_t lenght);
+static inline double *saa_arena_push_value_double(const saa_arena *restrict arena, double value);
+static inline float *saa_arena_push_value_float(const saa_arena *restrict arena, float value);
+static inline int *saa_arena_push_value_int(const saa_arena *restrict, int value);
+static inline bool *saa_arena_push_value_bool(const saa_arena *restrict arena, int value);
+static inline char *saa_arena_push_value_string(const saa_arena *restrict arena, const char *restrict value);
+static inline void *saa_arena_push_arbitrary(const saa_arena *restrict arena, const void *restrict value, size_t lenght);
+static inline void saa_arena_destroy(const saa_arena *arena);
 
 #define saa_arena_push_value_strings(arena, ...) \
-        __saa_arena_push_value_strings(arena, (const char *[]){ __VA_ARGS__, NULL })
-static inline char *__saa_arena_push_value_strings(saa_arena *arena, const char **value);
+    __saa_arena_push_value_strings(arena, (const char *[]){ __VA_ARGS__, NULL })
+static inline char *__saa_arena_push_value_strings(const saa_arena *restrict arena, const char **value);
 
-#define saa_arena_push_value(arena, type) _Generic((type),     \
-                    float: saa_arena_push_value_float,         \
-                    double: saa_arena_push_value_double,       \
-                    int: saa_arena_push_value_int,             \
-                    char *: saa_arena_push_value_string,       \
-                    char **: __saa_arena_push_value_strings    \
-              )(arena, type)
+#define saa_arena_push_value(arena, type) _Generic((type), \
+    float: saa_arena_push_value_float,                     \
+    double: saa_arena_push_value_double,                   \
+    int: saa_arena_push_value_int,                         \
+    char *: saa_arena_push_value_string,                   \
+    char **: __saa_arena_push_value_strings)(arena, type)
 
 #ifdef __cplusplus
 }// extern "C"
@@ -65,7 +64,8 @@ static inline saa_arena_page *__saa_allocate_arena_page(const size_t page_size)
     return ret;
 }
 
-static inline void __saa_arena_add_page(saa_arena *arena) {
+static inline void __saa_arena_add_page(const saa_arena *restrict arena)
+{
     saa_arena_page *latest_page = NULL;
     for (latest_page = arena->pages; latest_page->next != NULL; latest_page = latest_page->next) {}
     latest_page->next = __saa_allocate_arena_page(arena->page_size);
@@ -76,11 +76,11 @@ static inline saa_arena saa_arena_create(const size_t page_size)
     return (saa_arena){ .page_size = page_size, .pages = __saa_allocate_arena_page(page_size) };
 }
 
-static inline void *saa_arena_push(saa_arena *arena, size_t lenght)
+static inline void *saa_arena_push(const saa_arena *restrict arena, size_t lenght)
 {
     void *ret_ptr = NULL;
     saa_arena_page *latest_page = NULL;
-    if(lenght > arena->page_size) return NULL;
+    if (lenght > arena->page_size) return NULL;
     for (latest_page = arena->pages; latest_page->next != NULL; latest_page = latest_page->next) {}
     if (latest_page->capacity + lenght > arena->page_size) {
         latest_page->next = __saa_allocate_arena_page(arena->page_size);
@@ -91,7 +91,8 @@ static inline void *saa_arena_push(saa_arena *arena, size_t lenght)
     return ret_ptr;
 }
 
-static inline bool saa_arena_last_page_able_fit_lenght(saa_arena *arena, size_t lenght) {
+static inline bool saa_arena_last_page_able_fit_lenght(const saa_arena *restrict arena, size_t lenght)
+{
     saa_arena_page *latest_page = NULL;
     for (latest_page = arena->pages; latest_page->next != NULL; latest_page = latest_page->next) {}
     if (latest_page->capacity + lenght > arena->page_size) {
@@ -100,56 +101,68 @@ static inline bool saa_arena_last_page_able_fit_lenght(saa_arena *arena, size_t 
     return true;
 }
 
-static inline void *saa_arena_push_arbitrary(saa_arena *arena, void *value, size_t lenght)
+static inline void *saa_arena_push_arbitrary(const saa_arena *restrict arena, const void *restrict value, size_t lenght)
 {
     void *ptr = saa_arena_push(arena, lenght);
     memcpy(ptr, value, lenght);
     return ptr;
 }
 
-static inline double *saa_arena_push_value_double(saa_arena *arena, double value)
+static inline double *saa_arena_push_value_double(const saa_arena *restrict arena, double value)
 {
     return (double *)saa_arena_push_arbitrary(arena, (void *)&value, sizeof(value));
 }
 
-static inline float *saa_arena_push_value_float(saa_arena *arena, float value)
+static inline float *saa_arena_push_value_float(const saa_arena *restrict arena, float value)
 {
     return (float *)saa_arena_push_arbitrary(arena, (void *)&value, sizeof(value));
 }
 
-static inline int *saa_arena_push_value_int(saa_arena *arena, int value)
+static inline int *saa_arena_push_value_int(const saa_arena *restrict arena, int value)
 {
     return (int *)saa_arena_push_arbitrary(arena, (void *)&value, sizeof(value));
 }
 
-static inline bool *saa_arena_push_value_bool(saa_arena *arena, int value)
+static inline bool *saa_arena_push_value_bool(const saa_arena *restrict arena, int value)
 {
     return (bool *)saa_arena_push_arbitrary(arena, (void *)&value, sizeof(value));
 }
 
-static inline char *saa_arena_push_value_string(saa_arena *arena, const char *value)
+static inline char *saa_arena_push_value_string(const saa_arena *restrict arena, const char *restrict value)
 {
     return (char *)saa_arena_push_arbitrary(arena, (void *)value, strlen(value) + 1);
 }
 
-static inline char *__saa_arena_push_value_strings(saa_arena *arena, const char **value) {
+static inline char *__saa_arena_push_value_strings(const saa_arena *restrict arena, const char **value)
+{
     int index = 0;
     size_t summary_size = 0;
-    for(index = 0; value[index + 1] != NULL; index++) {
+    char *ret = NULL;
+    char *tmp = NULL;
+    if (value == NULL || value[0] == NULL) {
+        return NULL;
+    } else if (value[1] == NULL) {
+        return saa_arena_push_value_string(arena, value[0]);
+    }
+    for (index = 0; value[index + 1] != NULL; index++) {
         summary_size += strlen(value[index]);
     }
-    summary_size += + strlen(value[index]) + 1;
-    if(summary_size > arena->page_size) return NULL;
-    else if(!saa_arena_last_page_able_fit_lenght(arena, summary_size)) { __saa_arena_add_page(arena); }
-    char *ret = saa_arena_push_arbitrary(arena, (void *)*value, strlen(*value));
-    for(index = 1; value[index + 1] != NULL; index++) {
-        (void)saa_arena_push_arbitrary(arena, (void *)value[index], strlen(value[index]));
+    summary_size += strlen(value[index]) + 1;
+    if ((ret = saa_arena_push(arena, summary_size)) == NULL) {
+        return NULL;
     }
-    (void)saa_arena_push_arbitrary(arena, (void *)value[index], strlen(value[index]) + 1);
+    tmp = ret;
+    memcpy(ret, value[0], strlen(value[0]));
+    tmp += strlen(value[0]);
+    for (index = 1; value[index + 1] != NULL; index++) {
+        memcpy(tmp, value[index], strlen(value[index]));
+        tmp += strlen(value[index]);
+    }
+    memcpy(tmp, value[index], strlen(value[index]) + 1);
     return ret;
 }
 
-static inline void saa_arena_destroy(saa_arena *arena)
+static inline void saa_arena_destroy(const saa_arena *arena)
 {
     saa_arena_page *page = arena->pages;
     while (page != NULL) {

@@ -114,9 +114,9 @@ STF_TEST_CASE(saa, arena_pushing_with_macro)
     static const size_t arena_page_size = 100;
     static const float pushed_float = 77.7;
     saa_arena arena = saa_arena_create(arena_page_size);
-    float *pushed = saa_arena_push_value(&arena, pushed_float); 
+    float *pushed = saa_arena_push_value(&arena, pushed_float);
     STF_EXPECT(*pushed == pushed_float, .failure_msg = "values did not match");
-    char *pushed_string = saa_arena_push_value(&arena, "this was pushed"); 
+    char *pushed_string = saa_arena_push_value(&arena, "this was pushed");
     STF_EXPECT(strcmp(pushed_string, "this was pushed") == 0, .failure_msg = "values did not match");
     saa_arena_destroy(&arena);
 }
@@ -126,7 +126,7 @@ STF_TEST_CASE(saa, arena_pushing_many_strings)
     static const size_t arena_page_size = 100;
     const char *some_text = "something";
     saa_arena arena = saa_arena_create(arena_page_size);
-    char *pushed_string = saa_arena_push_value_strings(&arena, "this", " is many ", "strings ", some_text); 
+    char *pushed_string = saa_arena_push_value_strings(&arena, "this", " is many ", "strings ", some_text);
     STF_EXPECT(strcmp(pushed_string, "this is many strings something") == 0, .failure_msg = "values did not match");
     saa_arena_destroy(&arena);
 }
@@ -136,8 +136,35 @@ STF_TEST_CASE(saa, arena_pushing_too_many_string)
     static const size_t arena_page_size = 10;
     const char *some_text = "something";
     saa_arena arena = saa_arena_create(arena_page_size);
-    char *pushed_string = saa_arena_push_value_strings(&arena, "this", " is many ", "strings ", some_text); 
+    char *pushed_string = saa_arena_push_value_strings(&arena, "this", " is many ", "strings ", some_text);
     STF_EXPECT(pushed_string == NULL, .failure_msg = "on pushing string with summary lenght > page size was supposed to return an invalid pointer");
+    saa_arena_destroy(&arena);
+}
+
+STF_TEST_CASE(saa, arena_pushing_one_string)
+{
+    static const size_t arena_page_size = 10;
+    saa_arena arena = saa_arena_create(arena_page_size);
+    char *pushed_string = saa_arena_push_value_strings(&arena, "this");
+    STF_EXPECT(strcmp(pushed_string, "this") == 0, .failure_msg = "values did not match");
+    saa_arena_destroy(&arena);
+}
+
+STF_TEST_CASE(saa, arena_pushing_two_string)
+{
+    static const size_t arena_page_size = 50;
+    saa_arena arena = saa_arena_create(arena_page_size);
+    char *pushed_string = saa_arena_push_value_strings(&arena, "this ", "and this");
+    STF_EXPECT(strcmp(pushed_string, "this and this") == 0, .failure_msg = "values did not match");
+    saa_arena_destroy(&arena);
+}
+
+STF_TEST_CASE(saa, arena_pushing_three_string)
+{
+    static const size_t arena_page_size = 50;
+    saa_arena arena = saa_arena_create(arena_page_size);
+    char *pushed_string = saa_arena_push_value_strings(&arena, "\"", "gabagoool", "\"");
+    STF_EXPECT(strcmp(pushed_string, "\"gabagoool\"") == 0, .failure_msg = "values did not match");
     saa_arena_destroy(&arena);
 }
 
