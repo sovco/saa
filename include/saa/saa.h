@@ -133,6 +133,17 @@ static inline char *saa_arena_push_value_string(const saa_arena *restrict arena,
     return (char *)saa_arena_push_arbitrary(arena, (void *)value, strlen(value) + 1);
 }
 
+static inline size_t __saa_sum_up_string_lenght(const char **strings)
+{
+    int i = 0;
+    size_t summary_size = 0;
+    for (i = 0; strings[i + 1] != NULL; i++) {
+        summary_size += strlen(strings[i]);
+    }
+    summary_size += strlen(strings[i]) + 1;
+    return summary_size;
+}
+
 static inline char *__saa_arena_push_value_strings(const saa_arena *restrict arena, const char **value)
 {
     int index = 0;
@@ -144,10 +155,7 @@ static inline char *__saa_arena_push_value_strings(const saa_arena *restrict are
     } else if (value[1] == NULL) {
         return saa_arena_push_value_string(arena, value[0]);
     }
-    for (index = 0; value[index + 1] != NULL; index++) {
-        summary_size += strlen(value[index]);
-    }
-    summary_size += strlen(value[index]) + 1;
+    summary_size = __saa_sum_up_string_lenght(value);
     if ((ret = saa_arena_push(arena, summary_size)) == NULL) {
         return NULL;
     }
