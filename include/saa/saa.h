@@ -60,7 +60,7 @@ extern "C" {
 static inline saa_arena_page *__saa_allocate_arena_page(const size_t page_size)
 {
     saa_arena_page *ret = malloc(sizeof(*ret));
-    *ret = (saa_arena_page){ .data = (char *)malloc(sizeof(char) * page_size), .capacity = 0, .next = NULL };
+    *ret = (saa_arena_page){ .data = (char *)malloc(page_size), .capacity = 0, .next = NULL };
     return ret;
 }
 
@@ -136,7 +136,7 @@ static inline char *saa_arena_push_value_string(const saa_arena *restrict arena,
 static inline size_t __saa_sum_up_string_lenght(const char **strings)
 {
     int i = 0;
-    size_t summary_size = 0;
+    register size_t summary_size = 0;
     for (i = 0; strings[i + 1] != NULL; i++) {
         summary_size += strlen(strings[i]);
     }
@@ -146,7 +146,7 @@ static inline size_t __saa_sum_up_string_lenght(const char **strings)
 
 static inline char *__saa_arena_push_value_strings(const saa_arena *restrict arena, const char **value)
 {
-    int index = 0;
+    register int index = 0;
     size_t summary_size = 0;
     char *ret = NULL;
     char *tmp = NULL;
