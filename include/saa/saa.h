@@ -36,8 +36,11 @@ static inline void saa_arena_destroy(const saa_arena *arena);
 
 #define saa_arena_push_value_strings(arena, ...) \
     __saa_arena_push_value_strings(arena, (const char *[]){ __VA_ARGS__, NULL })
+// Note: **value must end with NULL otherwise it will not work
 static inline char *__saa_arena_push_value_strings(const saa_arena *restrict arena, const char **value);
 
+// Note: char ** must end with NULL otherwise it will not work
+static inline char *__saa_arena_push_value_strings(const saa_arena *restrict arena, const char **value);
 #define saa_arena_push_value(arena, type) _Generic((type), \
     float: saa_arena_push_value_float,                     \
     double: saa_arena_push_value_double,                   \

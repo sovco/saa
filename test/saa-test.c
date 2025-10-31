@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stf/stf.h>
+
+#define SMB_IMPL
+#include <smb/smb.h>
+
 #define SAA_IMPL
 #include <saa/saa.h>
 
@@ -166,6 +170,29 @@ STF_TEST_CASE(saa, arena_pushing_three_string)
     char *pushed_string = saa_arena_push_value_strings(&arena, "\"", "gabagoool", "\"");
     STF_EXPECT(strcmp(pushed_string, "\"gabagoool\"") == 0, .failure_msg = "values did not match");
     saa_arena_destroy(&arena);
+}
+
+
+STF_TEST_CASE(saa, benchmark_push)
+{
+    static const size_t arena_page_size = 200;
+    saa_arena arena = saa_arena_create(arena_page_size);
+    SMB_BENCHMARK_BEGIN(saa, construct_saa)
+    (void)saa_arena_push(&arena, 50);
+    SMB_BENCHMARK_END;
+    saa_arena_destroy(&arena);
+    STF_EXPECT(true, .failure_msg = "you will never see this");
+}
+
+STF_TEST_CASE(saa, benchmark_push_strings)
+{
+    static const size_t arena_page_size = 200;
+    saa_arena arena = saa_arena_create(arena_page_size);
+    SMB_BENCHMARK_BEGIN(saa, push_strings)
+    (void)saa_arena_push_value_strings(&arena, "\"", "gabagoool", "\"", "this", "one");
+    SMB_BENCHMARK_END;
+    saa_arena_destroy(&arena);
+    STF_EXPECT(true, .failure_msg = "you will never see this");
 }
 
 int main(void)
