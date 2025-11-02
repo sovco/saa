@@ -25,7 +25,6 @@ struct saa_arena_t
 
 static inline saa_arena saa_arena_create(const size_t size);
 static inline void *saa_arena_push(const saa_arena *restrict arena, size_t lenght);
-static inline bool saa_arena_last_page_able_fit_lenght(const saa_arena *restrict arena, size_t lenght);
 static inline double *saa_arena_push_value_double(const saa_arena *restrict arena, double value);
 static inline float *saa_arena_push_value_float(const saa_arena *restrict arena, float value);
 static inline int *saa_arena_push_value_int(const saa_arena *restrict, int value);
@@ -67,13 +66,6 @@ static inline saa_arena_page *__saa_allocate_arena_page(const size_t page_size)
     return ret;
 }
 
-static inline void __saa_arena_add_page(const saa_arena *restrict arena)
-{
-    saa_arena_page *latest_page = NULL;
-    for (latest_page = arena->pages; latest_page->next != NULL; latest_page = latest_page->next) {}
-    latest_page->next = __saa_allocate_arena_page(arena->page_size);
-}
-
 static inline saa_arena saa_arena_create(const size_t page_size)
 {
     return (saa_arena){ .page_size = page_size, .pages = __saa_allocate_arena_page(page_size) };
@@ -92,16 +84,6 @@ static inline void *saa_arena_push(const saa_arena *restrict arena, size_t lengh
     ret_ptr = (void *)(latest_page->data + latest_page->capacity);
     latest_page->capacity += lenght;
     return ret_ptr;
-}
-
-static inline bool saa_arena_last_page_able_fit_lenght(const saa_arena *restrict arena, size_t lenght)
-{
-    saa_arena_page *latest_page = NULL;
-    for (latest_page = arena->pages; latest_page->next != NULL; latest_page = latest_page->next) {}
-    if (latest_page->capacity + lenght > arena->page_size) {
-        return false;
-    }
-    return true;
 }
 
 static inline void *saa_arena_push_arbitrary(const saa_arena *restrict arena, const void *restrict value, size_t lenght)
