@@ -72,6 +72,7 @@ static inline saa_arena_page *__saa_allocate_arena_page(const size_t page_size)
 
 static inline saa_arena saa_arena_create(const size_t page_size)
 {
+    assert(page_size > 0);
     return (saa_arena){ .page_size = page_size, .pages = __saa_allocate_arena_page(page_size) };
 }
 
