@@ -172,28 +172,33 @@ STF_TEST_CASE(saa, arena_pushing_three_string)
     saa_arena_destroy(&arena);
 }
 
-
-STF_TEST_CASE(saa, benchmark_push)
-{
-    static const size_t arena_page_size = 200;
-    saa_arena arena = saa_arena_create(arena_page_size);
-    SMB_BENCHMARK_BEGIN(saa, construct_saa)
-    (void)saa_arena_push(&arena, 50);
-    SMB_BENCHMARK_END;
-    saa_arena_destroy(&arena);
-    STF_EXPECT(true, .failure_msg = "you will never see this");
-}
-
-STF_TEST_CASE(saa, benchmark_push_strings)
-{
-    static const size_t arena_page_size = 200;
-    saa_arena arena = saa_arena_create(arena_page_size);
-    SMB_BENCHMARK_BEGIN(saa, push_strings)
-    (void)saa_arena_push_value_strings(&arena, "\"", "gabagoool", "\"", "this", "one");
-    SMB_BENCHMARK_END;
-    saa_arena_destroy(&arena);
-    STF_EXPECT(true, .failure_msg = "you will never see this");
-}
+// STF_TEST_CASE(saa, benchmark_initialization)
+// {
+//     static const size_t arena_page_size = 200;
+//     static const size_t runs = 200;
+//     saa_arena *arenas = malloc(sizeof(*arenas) * runs);
+//     int iter = 0;
+//     SMB_BENCHMARK_BEGIN(saa, construct_saa, .total_runs = runs)
+//     arenas[iter] = saa_arena_create(arena_page_size);
+//     i++;
+//     SMB_BENCHMARK_END;
+//     for (register size_t j = 0; j < runs; j++) {
+//         saa_arena_destroy(&arenas[j]);
+//     }
+//     free(arenas);
+//     STF_EXPECT(true, .failure_msg = "you will never see this");
+// }
+//
+// STF_TEST_CASE(saa, benchmark_push_strings)
+// {
+//     static const size_t arena_page_size = 200;
+//     saa_arena arena = saa_arena_create(arena_page_size);
+//     SMB_BENCHMARK_BEGIN(saa, push_strings, .total_runs = 20)
+//     (void)saa_arena_push_value_strings(&arena, "\"", "gabagoool", "\"", "this", "one");
+//     SMB_BENCHMARK_END;
+//     saa_arena_destroy(&arena);
+//     STF_EXPECT(true, .failure_msg = "you will never see this");
+// }
 
 int main(void)
 {

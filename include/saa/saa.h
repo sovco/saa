@@ -20,7 +20,7 @@ struct saa_arena_page_t
 struct saa_arena_t
 {
     saa_arena_page *pages;
-    const size_t page_size;
+    size_t page_size;
 };
 
 static inline saa_arena saa_arena_create(const size_t size);
@@ -61,8 +61,10 @@ extern "C" {
 
 static inline saa_arena_page *__saa_allocate_arena_page(const size_t page_size)
 {
-    saa_arena_page *ret = malloc(sizeof(*ret));
+    saa_arena_page *ret = (saa_arena_page *)malloc(sizeof(*ret));
+    memset(ret, 0x00, sizeof(*ret));
     *ret = (saa_arena_page){ .data = (char *)malloc(page_size), .capacity = 0, .next = NULL };
+    memset(ret->data, 0x00, page_size);
     return ret;
 }
 
