@@ -58,9 +58,11 @@ extern "C" {
 #endif
 
 #include <string.h>
+#include <assert.h>
 
 static inline saa_arena_page *__saa_allocate_arena_page(const size_t page_size)
 {
+    assert(page_size > 0);
     saa_arena_page *ret = (saa_arena_page *)malloc(sizeof(*ret));
     memset(ret, 0x00, sizeof(*ret));
     *ret = (saa_arena_page){ .data = (char *)malloc(page_size), .capacity = 0, .next = NULL };
@@ -75,6 +77,8 @@ static inline saa_arena saa_arena_create(const size_t page_size)
 
 static inline void *saa_arena_push(const saa_arena *restrict arena, size_t lenght)
 {
+    assert(arena != NULL);
+    assert(lenght > 0);
     void *ret_ptr = NULL;
     saa_arena_page *latest_page = NULL;
     if (lenght > arena->page_size) return NULL;
@@ -90,6 +94,9 @@ static inline void *saa_arena_push(const saa_arena *restrict arena, size_t lengh
 
 static inline void *saa_arena_push_arbitrary(const saa_arena *restrict arena, const void *restrict value, size_t lenght)
 {
+    assert(arena != NULL);
+    assert(value != NULL);
+    assert(lenght > 0);
     void *ptr = saa_arena_push(arena, lenght);
     memcpy(ptr, value, lenght);
     return ptr;
@@ -122,6 +129,7 @@ static inline char *saa_arena_push_value_string(const saa_arena *restrict arena,
 
 static inline size_t __saa_sum_up_string_lenght(const char **strings)
 {
+    assert(strings != NULL);
     int i = 0;
     register size_t summary_size = 0;
     for (i = 0; strings[i + 1] != NULL; i++) {
@@ -133,6 +141,8 @@ static inline size_t __saa_sum_up_string_lenght(const char **strings)
 
 static inline char *__saa_arena_push_value_strings(const saa_arena *restrict arena, const char **value)
 {
+    assert(arena != NULL);
+    assert(value != NULL);
     register int index = 0;
     size_t summary_size = 0;
     char *ret = NULL;
@@ -157,6 +167,7 @@ static inline char *__saa_arena_push_value_strings(const saa_arena *restrict are
 
 static inline void saa_arena_destroy(const saa_arena *arena)
 {
+    assert(arena != NULL);
     saa_arena_page *page = arena->pages;
     while (page != NULL) {
         saa_arena_page *tmp = page->next;
