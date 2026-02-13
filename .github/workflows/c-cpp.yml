@@ -19,7 +19,5 @@ jobs:
       run: curl -Lo build/deps/nob/nob.h https://raw.githubusercontent.com/tsoding/nob.h/refs/heads/main/nob.h
     - name: build-project-exec
       run: gcc -o project-build project-build.c
-    - name: build
-      run: ./project-build
-    - name: run-tests
-      run: ./build/saa-test
+    - name: build-n-test
+      run: ./project-build --run-tests
