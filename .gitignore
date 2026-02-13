@@ -21,4 +21,5 @@
 !test/*/*/*.c
 test/nob.h
 !project-build.c
+!project-build.h
 !.clang-format

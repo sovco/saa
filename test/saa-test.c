@@ -172,6 +172,18 @@ STF_TEST_CASE(saa, arena_pushing_three_string)
     saa_arena_destroy(&arena);
 }
 
+STF_TEST_CASE(saa, arena_blob_pages)
+{
+    static const size_t arena_page_size = 10;
+    saa_arena arena = saa_arena_create(arena_page_size);
+    char *pushed_string_page_1 = saa_arena_push_value_string(&arena, "page 1 ");
+    char *pushed_string_page_2 = saa_arena_push_value_string(&arena, "page 2");
+    STF_EXPECT(pushed_string_page_1 != NULL && pushed_string_page_2 != NULL, .return_on_failure = true, .failure_msg = "strings were not allocated");
+    char *blob = (char *)saa_arena_blob_pages(&arena);
+    STF_EXPECT(blob != NULL, .return_on_failure = true, .failure_msg = "strings were not allocated");
+    free(blob);
+    saa_arena_destroy(&arena);
+}
 // STF_TEST_CASE(saa, benchmark_initialization)
 // {
 //     static const size_t arena_page_size = 200;

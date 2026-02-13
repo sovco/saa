@@ -31,6 +31,7 @@ static inline int *saa_arena_push_value_int(const saa_arena *restrict, int value
 static inline bool *saa_arena_push_value_bool(const saa_arena *restrict arena, int value);
 static inline char *saa_arena_push_value_string(const saa_arena *restrict arena, const char *restrict value);
 static inline void *saa_arena_push_arbitrary(const saa_arena *restrict arena, const void *restrict value, size_t lenght);
+static inline void *saa_arena_blob_pages(const saa_arena *restrict arena);
 static inline void saa_arena_destroy(const saa_arena *arena);
 
 #define saa_arena_push_value_strings(arena, ...) \
@@ -176,6 +177,21 @@ static inline void saa_arena_destroy(const saa_arena *arena)
         free(page);
         page = tmp;
     }
+}
+
+static inline void *saa_arena_blob_pages(const saa_arena *restrict arena)
+{
+    size_t total_size = 0;
+    for (saa_arena_page *page = arena->pages; page->next != NULL; page = page->next) {
+        total_size += page->capacity;
+    }
+    void *ret = NULL;
+    if ((ret = malloc(sizeof(*ret) * total_size)) == NULL) return NULL;
+    for (saa_arena_page *page = arena->pages; page->next != NULL; page = page->next) {
+        memcpy(ret, page->data, page->capacity);
+        ret += page->capacity;
+    }
+    return ret - total_size;
 }
 
 #ifdef __cplusplus
